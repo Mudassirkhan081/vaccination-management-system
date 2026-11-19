@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TeekaCard — Vaccination Management System</title>
+<meta name="description" content="TeekaCard turns a child's paper vaccination card into a live schedule. A PHP and MySQL web application with parent, hospital and administrator roles. Built by Mudassir Khan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%92%89%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#273040;
+    --text:#e8edf5; --muted:#9aa7bd;
+    --accent:#4da3ff; --accent-soft:rgba(77,163,255,.14);
+    --radius:14px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f7f9fc; --panel:#ffffff; --line:#e1e7f0;
+      --text:#141a24; --muted:#5a6678;
+      --accent:#0b62c4; --accent-soft:rgba(11,98,196,.09);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);
+       line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+
+  header{border-bottom:1px solid var(--line);background:var(--panel)}
+  .hd{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+      padding:16px 0}
+  .brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+  .brand span{color:var(--muted);font-weight:400}
+  .hd nav{display:flex;flex-wrap:wrap;gap:16px;font-size:.92rem}
+  .hd nav a{color:var(--muted);text-decoration:none}
+  .hd nav a:hover{color:var(--accent)}
+
+  .hero{padding:56px 0 40px}
+  h1{font-size:clamp(2rem,5vw,3rem);line-height:1.12;margin:0 0 14px;letter-spacing:-.02em}
+  .lede{font-size:1.1rem;color:var(--muted);max-width:60ch;margin:0 0 24px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px;padding:0;list-style:none}
+  .chips li{font-size:.82rem;padding:5px 11px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--panel)}
+  .btns{display:flex;flex-wrap:wrap;gap:10px}
+  .btn{display:inline-block;padding:11px 20px;border-radius:10px;text-decoration:none;
+       font-weight:600;font-size:.95rem;border:1px solid var(--line);color:var(--text);
+       background:var(--panel);min-height:44px}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .note{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);
+        border:1px solid var(--line);border-left:3px solid var(--accent);
+        border-radius:var(--radius);padding:16px 18px;margin:0 0 48px;font-size:.95rem}
+  .note b{display:block;margin-bottom:3px}
+  .note p{margin:0;color:var(--muted)}
+
+  section{padding:0 0 52px}
+  h2{font-size:clamp(1.45rem,2.6vw,1.9rem);margin:0 0 6px;letter-spacing:-.015em}
+  .sub{color:var(--muted);margin:0 0 22px;max-width:62ch}
+
+  .roles{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0 0 8px}
+  .role{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .role h3{margin:0 0 8px;font-size:1.05rem}
+  .role p{margin:0;color:var(--muted);font-size:.93rem}
+
+  .shots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  figure{margin:0;background:var(--panel);border:1px solid var(--line);
+         border-radius:var(--radius);overflow:hidden}
+  figure img{display:block;width:100%;height:auto;background:#fff;cursor:zoom-in}
+  figcaption{padding:10px 14px;font-size:.86rem;color:var(--muted);border-top:1px solid var(--line)}
+
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+  .steps li{counter-increment:s;position:relative;padding:14px 16px 14px 48px;
+            background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:.95rem}
+  .steps li::before{content:counter(s);position:absolute;left:16px;top:14px;
+            width:22px;height:22px;border-radius:999px;background:var(--accent);color:#fff;
+            font-size:.78rem;font-weight:700;display:grid;place-items:center}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+       font-size:.88em;background:var(--accent-soft);padding:2px 6px;border-radius:5px}
+
+  table{width:100%;border-collapse:collapse;font-size:.92rem;
+        background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:.84rem;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}
+
+  footer{border-top:1px solid var(--line);background:var(--panel);
+         padding:28px 0;color:var(--muted);font-size:.9rem}
+  footer a{color:var(--accent)}
+
+  dialog{border:0;padding:0;background:transparent;max-width:96vw;max-height:94vh}
+  dialog::backdrop{background:rgba(0,0,0,.82)}
+  dialog img{max-width:96vw;max-height:94vh;display:block;border-radius:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="brand">TeekaCard <span>/ Vaccination Management System</span></div>
+    <nav>
+      <a href="#walkthrough">Walkthrough</a>
+      <a href="#parent">Parent</a>
+      <a href="#admin">Admin</a>
+      <a href="#hospital">Hospital</a>
+      <a href="#run">Run it</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="hero">
+    <h1>A child's paper vaccination card, turned into a live schedule.</h1>
+    <p class="lede">TeekaCard tracks every dose a child is due. Parents see the due dates and book a
+      hospital visit, the hospital records what was actually given, and the administrator approves
+      requests and prints date-wise reports.</p>
+    <ul class="chips">
+      <li>PHP 8</li><li>MySQL / MariaDB</li><li>Bootstrap 5</li>
+      <li>Chart.js</li><li>Apache / XAMPP</li><li>3 user roles</li><li>10 tables</li>
+    </ul>
+    <div class="btns">
+      <a class="btn btn-primary" href="#walkthrough">See the walkthrough</a>
+      <a class="btn" href="https://github.com/Mudassirkhan081/vaccination-management-system">Source code on GitHub</a>
+    </div>
+  </div>
+
+  <div class="note">
+    <div>
+      <b>Why this page shows screenshots instead of a running app</b>
+      <p>TeekaCard is a server-side PHP application with a MySQL database. GitHub Pages only
+         serves static files, so it cannot run PHP. This page is a complete walkthrough of the
+         real application, captured screen by screen. To use the working system, follow
+         <a href="#run">Run it locally</a> &mdash; it takes about five minutes with XAMPP.</p>
+    </div>
+  </div>
+
+  <section id="walkthrough">
+    <h2>The public site</h2>
+    <p class="sub">Anyone can read the routine vaccine schedule, work out a due date from the
+      child's birth date, and search the hospital directory before registering.</p>
+    <div class="shots">
+      <figure><img src="screens/01-home.png" alt="TeekaCard home page" loading="lazy" width="1280" height="800"><figcaption>Home</figcaption></figure>
+      <figure><img src="screens/02-schedule.png" alt="Routine vaccination schedule with a due-date calculator" loading="lazy" width="1280" height="800"><figcaption>Schedule and due-date calculator</figcaption></figure>
+      <figure><img src="screens/03-hospitals.png" alt="Searchable hospital directory" loading="lazy" width="1280" height="800"><figcaption>Hospital directory</figcaption></figure>
+      <figure><img src="screens/04-login.png" alt="Login screen with role selection" loading="lazy" width="1280" height="800"><figcaption>Login, by role</figcaption></figure>
+      <figure><img src="screens/05-register.png" alt="Parent registration form" loading="lazy" width="1280" height="800"><figcaption>Parent registration</figcaption></figure>
+      <figure><img src="screens/07-contact.png" alt="Contact form" loading="lazy" width="1280" height="800"><figcaption>Contact</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Three roles, three different jobs</h2>
+    <p class="sub">Each role sees only what it needs. A hospital never sees another hospital's
+      appointments, and a parent never sees another parent's children.</p>
+    <div class="roles">
+      <div class="role">
+        <h3>Parent</h3>
+        <p>Adds children, reads the digital vaccination card, books a hospital visit, records
+           earlier doses from the paper card, and prints a report.</p>
+      </div>
+      <div class="role">
+        <h3>Hospital</h3>
+        <p>Registers and waits for approval, then works through today's, upcoming and past
+           appointments, marking each vaccine Given or Not given with a remark.</p>
+      </div>
+      <div class="role">
+        <h3>Administrator</h3>
+        <p>Approves parent requests and hospitals, manages the vaccine list, follows every
+           booking on a timeline, and prints date-wise and child-wise reports.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="parent">
+    <h2>Parent</h2>
+    <p class="sub">The dashboard leads with what is overdue and what is coming, because that is
+      the only reason a parent opens the app.</p>
+    <div class="shots">
+      <figure><img src="screens/08-parent-dashboard.png" alt="Parent dashboard with reminders" loading="lazy" width="1280" height="800"><figcaption>Dashboard with reminders</figcaption></figure>
+      <figure><img src="screens/09-parent-children.png" alt="List of a parent's children" loading="lazy" width="1280" height="800"><figcaption>My children</figcaption></figure>
+      <figure><img src="screens/10-child-card.png" alt="Digital vaccination card for one child" loading="lazy" width="1280" height="800"><figcaption>Digital vaccination card</figcaption></figure>
+      <figure><img src="screens/11-add-child.png" alt="Add child form" loading="lazy" width="1280" height="800"><figcaption>Add a child</figcaption></figure>
+      <figure><img src="screens/12-book-hospital.png" alt="Booking a hospital visit" loading="lazy" width="1280" height="800"><figcaption>Book a hospital visit</figcaption></figure>
+      <figure><img src="screens/13-parent-bookings.png" alt="A parent's bookings" loading="lazy" width="1280" height="800"><figcaption>My bookings</figcaption></figure>
+      <figure><img src="screens/14-parent-report.png" alt="Printable vaccination report" loading="lazy" width="1280" height="800"><figcaption>Printable report</figcaption></figure>
+      <figure><img src="screens/15-parent-notifications.png" alt="Notifications" loading="lazy" width="1280" height="800"><figcaption>Notifications</figcaption></figure>
+      <figure><img src="screens/36-mobile-parent-dashboard.png" alt="Parent dashboard on a phone" loading="lazy" width="430" height="900"><figcaption>On a phone</figcaption></figure>
+      <figure><img src="screens/37-mobile-child-card.png" alt="Vaccination card on a phone" loading="lazy" width="430" height="900"><figcaption>Card on a phone</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="admin">
+    <h2>Administrator</h2>
+    <p class="sub">Approvals, the vaccine catalogue, and the reports the clinic actually prints.</p>
+    <div class="shots">
+      <figure><img src="screens/17-admin-dashboard.png" alt="Admin dashboard with a six-month chart" loading="lazy" width="1280" height="800"><figcaption>Dashboard and six-month chart</figcaption></figure>
+      <figure><img src="screens/18-admin-requests.png" alt="Pending parent requests" loading="lazy" width="1280" height="800"><figcaption>Pending requests</figcaption></figure>
+      <figure><img src="screens/19-admin-approve-modal.png" alt="Approving a request" loading="lazy" width="1280" height="800"><figcaption>Approve or reject</figcaption></figure>
+      <figure><img src="screens/20-admin-children.png" alt="All children with filters" loading="lazy" width="1280" height="800"><figcaption>All children, filtered</figcaption></figure>
+      <figure><img src="screens/21-admin-child-detail.png" alt="One child's full record" loading="lazy" width="1280" height="800"><figcaption>Child detail</figcaption></figure>
+      <figure><img src="screens/22-admin-vaccination-dates.png" alt="Upcoming vaccination dates" loading="lazy" width="1280" height="800"><figcaption>Upcoming dates</figcaption></figure>
+      <figure><img src="screens/23-admin-report.png" alt="Date-wise vaccination report" loading="lazy" width="1280" height="800"><figcaption>Report, print and CSV</figcaption></figure>
+      <figure><img src="screens/25-admin-booking-detail.png" alt="Booking timeline" loading="lazy" width="1280" height="800"><figcaption>Booking timeline</figcaption></figure>
+      <figure><img src="screens/26-admin-vaccines.png" alt="Vaccine list" loading="lazy" width="1280" height="800"><figcaption>Vaccine list</figcaption></figure>
+      <figure><img src="screens/28-admin-hospitals.png" alt="Hospital management" loading="lazy" width="1280" height="800"><figcaption>Hospitals</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="hospital">
+    <h2>Hospital</h2>
+    <p class="sub">A short queue and one job: record what was given.</p>
+    <div class="shots">
+      <figure><img src="screens/32-hospital-dashboard.png" alt="Hospital dashboard" loading="lazy" width="1280" height="800"><figcaption>Dashboard</figcaption></figure>
+      <figure><img src="screens/33-hospital-appointments.png" alt="Today's appointments" loading="lazy" width="1280" height="800"><figcaption>Appointments</figcaption></figure>
+      <figure><img src="screens/34-hospital-result-modal.png" alt="Recording the result of a vaccine" loading="lazy" width="1280" height="800"><figcaption>Record the result</figcaption></figure>
+      <figure><img src="screens/35-hospital-completed.png" alt="Completed appointments" loading="lazy" width="1280" height="800"><figcaption>Completed</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="run">
+    <h2>Run it locally</h2>
+    <p class="sub">Everything is in the repository, including the database dump and the demo data.
+      No internet connection is needed once XAMPP is installed.</p>
+    <ol class="steps">
+      <li>Copy <code>1_Source_Code/vms</code> into <code>C:\xampp\htdocs\</code>.</li>
+      <li>Start <b>Apache</b> and <b>MySQL</b> from the XAMPP control panel.</li>
+      <li>Open <code>localhost/phpmyadmin</code>, click <b>Import</b> and choose
+          <code>vms/database/vaccination_db.sql</code>. It creates the database, all ten tables
+          and the demo data.</li>
+      <li>Open <code>localhost/vms/</code> and sign in with one of the demo accounts below.</li>
+    </ol>
+    <p class="sub" style="margin-top:22px">Demo accounts (local install only):</p>
+    <table>
+      <thead><tr><th>Role</th><th>Email</th><th>Password</th></tr></thead>
+      <tbody>
+        <tr><td>Administrator</td><td><code>admin@teekacard.pk</code></td><td><code>Admin@123</code></td></tr>
+        <tr><td>Parent</td><td><code>parent@teekacard.pk</code></td><td><code>Parent@123</code></td></tr>
+        <tr><td>Hospital</td><td><code>hospital@teekacard.pk</code></td><td><code>Hospital@123</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Built by <b>Mudassir Khan</b> &middot;
+    <a href="https://mudassirkhandev.com">mudassirkhandev.com</a> &middot;
+    <a href="https://github.com/Mudassirkhan081/vaccination-management-system">Repository</a>
+  </div>
+</footer>
+
+<dialog id="lb"><img alt=""></dialog>
+<script>
+  // Click any screenshot to see it full size. Nothing else on the page needs script.
+  var lb = document.getElementById('lb'), lbImg = lb.querySelector('img');
+  document.querySelectorAll('figure img').forEach(function(img){
+    img.addEventListener('click', function(){
+      lbImg.src = img.currentSrc || img.src;
+      lbImg.alt = img.alt;
+      lb.showModal();
+    });
+  });
+  lb.addEventListener('click', function(){ lb.close(); });
+  lb.addEventListener('close', function(){ lbImg.removeAttribute('src'); });
+</script>
+</body>
+</html>
