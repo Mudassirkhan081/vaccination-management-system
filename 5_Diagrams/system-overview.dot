@@ -1,0 +1,25 @@
+digraph Context {
+  graph [rankdir=LR, pad=0.3, nodesep=0.6, ranksep=1.3, fontname="Helvetica", bgcolor="white"];
+  node  [fontname="Helvetica", fontsize=11, penwidth=1.3];
+  edge  [fontname="Helvetica", fontsize=9, color="#4F5F58", penwidth=1.1];
+
+  parent   [shape=box, style="filled", fillcolor="#E7F0EB", color="#16503F", label="Parent"];
+  hospital [shape=box, style="filled", fillcolor="#E7F0EB", color="#16503F", label="Hospital"];
+  admin    [shape=box, style="filled", fillcolor="#E7F0EB", color="#16503F", label="Administrator"];
+  visitor  [shape=box, style="filled", fillcolor="#F3F5F1", color="#9DB3A8", label="Visitor"];
+
+  system [shape=circle, style="filled", fillcolor="#16503F", fontcolor="white", color="#16503F", width=2.2, fixedsize=true,
+          label="0\nTeekaCard\nVaccination\nManagement\nSystem"];
+
+  db [shape=cylinder, style="filled", fillcolor="#EEEBFA", color="#4A3AA8", label="MySQL\nvaccination_db\n(10 tables)"];
+
+  visitor -> system  [label="views schedule, hospitals,\nsends contact message"];
+  parent -> system   [label="registration, child details,\nbooking requests, paper-card doses"];
+  system -> parent   [label="vaccination card, due dates,\nnotifications, reports"];
+  admin -> system    [label="approve / reject, vaccines,\nhospitals, parents"];
+  system -> admin    [label="child details, due list,\ndate-wise reports, bookings"];
+  hospital -> system [label="registration, result per vaccine,\nprofile & timings"];
+  system -> hospital [label="confirmed appointments,\nnotifications"];
+  system -> db [dir=both, label="PDO prepared\nstatements"];
+  { rank=same; parent; admin; }
+}

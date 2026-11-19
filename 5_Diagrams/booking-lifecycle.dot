@@ -1,0 +1,28 @@
+digraph Lifecycle {
+  graph [rankdir=LR, pad=0.3, nodesep=0.5, ranksep=0.9, fontname="Helvetica", bgcolor="white"];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, penwidth=1.2, margin="0.18,0.1"];
+  edge  [fontname="Helvetica", fontsize=9.5, color="#4F5F58", penwidth=1.2];
+
+  start    [shape=circle, label="", width=0.22, style=filled, fillcolor="#16503F", color="#16503F"];
+  pending  [label="Pending\n(request sent)", fillcolor="#FBEFD9", color="#8F5405"];
+  approved [label="Approved\n(visit confirmed)", fillcolor="#E7F0EB", color="#16503F"];
+  rejected [label="Rejected\n(reason given)", fillcolor="#F8E5E3", color="#A8342A"];
+  cancelled[label="Cancelled", fillcolor="#EEF0EE", color="#6B7570"];
+  vacc     [label="Vaccinated\n(all doses given)", fillcolor="#EEEBFA", color="#4A3AA8"];
+  partial  [label="Partially Vaccinated\n(some doses given)", fillcolor="#EEEBFA", color="#4A3AA8"];
+  notv     [label="Not Vaccinated\n(no dose given)", fillcolor="#F8E5E3", color="#A8342A"];
+  reopen   [shape=note, label="Missed doses become\nopen again on the card\nand can be re-booked", fillcolor="#FFFFFF", color="#9DB3A8", fontsize=9.5];
+
+  start -> pending   [label="Parent books\n(child, vaccines,\nhospital, date/time)"];
+  pending -> approved [label="Admin approves\n(may move date/time)"];
+  pending -> rejected [label="Admin rejects"];
+  pending -> cancelled [label="Parent cancels"];
+  approved -> cancelled [label="Parent or Admin\ncancels before visit"];
+  approved -> vacc    [label="Hospital records\nresult (on/after\nvisit date)"];
+  approved -> partial;
+  approved -> notv;
+  partial -> reopen [style=dashed, arrowhead=none];
+  notv -> reopen    [style=dashed, arrowhead=none];
+  { rank=same; rejected; cancelled; }
+  { rank=same; vacc; partial; notv; }
+}
